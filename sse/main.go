@@ -109,11 +109,13 @@ func (b *Broker) listen() {
 			// We got a new event from the outside!
 			// Send event to all connected clients
 			for clientMessageChan, _ := range b.clients {
-				select {
-				case clientMessageChan <- event:
-				case <-time.After(patience):
-					log.Print("Skipping client.")
-				}
+				go func() {
+					select {
+					case clientMessageChan <- event:
+					case <-time.After(patience):
+						log.Print("Skipping client.")
+					}
+				}()
 			}
 		}
 	}
