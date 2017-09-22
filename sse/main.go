@@ -1,3 +1,7 @@
+// v3 of the SSE demo by ShevaXu,
+// see README for more.
+//
+// Original note from @schmohlio
 // v2 of the great example of SSE in go by @ismasan.
 // includes fixes:
 //    * infinite loop ending in panic
@@ -15,9 +19,6 @@ import (
 // the amount of time to wait when pushing a message to
 // a slow client or a client that closed after `range clients` started.
 const patience time.Duration = time.Second * 1
-
-// Example SSE server in Golang.
-//     $ go run sse.go
 
 type Broker struct {
 	// Events are pushed to this channel by the main events-gathering routine
@@ -108,7 +109,8 @@ func (b *Broker) listen() {
 		case event := <-b.Notifier:
 			// We got a new event from the outside!
 			// Send event to all connected clients
-			for clientMessageChan, _ := range b.clients {
+			for clientMessageChan := range b.clients {
+				// non-blocking
 				go func() {
 					select {
 					case clientMessageChan <- event:
@@ -122,7 +124,7 @@ func (b *Broker) listen() {
 }
 
 func main() {
-	//
+	// init a broker as a handler
 	b := NewBroker()
 
 	mux := http.NewServeMux()
