@@ -33,9 +33,9 @@ type Broker struct {
 	clients map[chan []byte]bool
 }
 
-func NewServer() (broker *Broker) {
+func NewBroker() (b *Broker) {
 	// Instantiate a broker
-	broker = &Broker{
+	b = &Broker{
 		Notifier:       make(chan []byte, 1),
 		newClients:     make(chan chan []byte),
 		closingClients: make(chan chan []byte),
@@ -43,12 +43,12 @@ func NewServer() (broker *Broker) {
 	}
 
 	// Set it running - listening and broadcasting events
-	go broker.listen()
+	go b.listen()
 
 	return
 }
 
-func (broker *Broker) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+func (b *Broker) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// Make sure that the writer supports flushing
 	flusher, ok := rw.(http.Flusher)
 
@@ -66,12 +66,12 @@ func (broker *Broker) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	messageChan := make(chan []byte)
 
 	// Signal the broker that we have a new connection
-	broker.newClients <- messageChan
+	b.newClients <- messageChan
 
 	// Remove this client from the map of connected clients
 	// when this handler exits.
 	defer func() {
-		broker.closingClients <- messageChan
+		b.closingClients <- messageChan
 	}()
 
 	// Listen to connection close and un-register messageChan
@@ -92,23 +92,23 @@ func (broker *Broker) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (broker *Broker) listen() {
+func (b *Broker) listen() {
 	for {
 		select {
-		case s := <-broker.newClients:
+		case s := <-b.newClients:
 			// A new client has connected.
 			// Register their message channel
-			broker.clients[s] = true
-			log.Printf("Client added. %d registered clients", len(broker.clients))
-		case s := <-broker.closingClients:
+			b.clients[s] = true
+			log.Printf("Client added. %d registered clients", len(b.clients))
+		case s := <-b.closingClients:
 			// A client has dettached and we want to
 			// stop sending them messages.
-			delete(broker.clients, s)
-			log.Printf("Removed client. %d registered clients", len(broker.clients))
-		case event := <-broker.Notifier:
+			delete(b.clients, s)
+			log.Printf("Removed client. %d registered clients", len(b.clients))
+		case event := <-b.Notifier:
 			// We got a new event from the outside!
 			// Send event to all connected clients
-			for clientMessageChan, _ := range broker.clients {
+			for clientMessageChan, _ := range b.clients {
 				select {
 				case clientMessageChan <- event:
 				case <-time.After(patience):
@@ -120,16 +120,21 @@ func (broker *Broker) listen() {
 }
 
 func main() {
-	broker := NewServer()
+	//
+	b := NewBroker()
+
+	mux := http.NewServeMux()
+
+	mux.Handle("/sse", b)
 
 	go func() {
 		for {
 			time.Sleep(time.Second * 2)
 			eventString := fmt.Sprintf("the time is %v", time.Now())
 			log.Println("Receiving event")
-			broker.Notifier <- []byte(eventString)
+			b.Notifier <- []byte(eventString)
 		}
 	}()
 
-	log.Fatal("HTTP server error: ", http.ListenAndServe("localhost:3000", broker))
+	log.Fatal("HTTP server error: ", http.ListenAndServe(":3000", mux))
 }
