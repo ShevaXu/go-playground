@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <title>Hello Gopher</title>
+    </head>
+    <body>
+    <h2>
+        Hello gopher from SSE server! See console for the server-sent messages.
+    </h2>
+    </body>
+    <script>
+        var client = new EventSource("http://localhost:3000/sse")
+        client.onmessage = function(msg) {
+            console.log(msg)
+        }
+    </script>
+</html>

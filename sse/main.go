@@ -126,6 +126,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.Handle("/sse", b)
+	mux.Handle("/", http.FileServer(http.Dir("./static")))
 
 	go func() {
 		for {
@@ -136,5 +137,6 @@ func main() {
 		}
 	}()
 
+	log.Println("See http://localhost:3000 for the demo.")
 	log.Fatal("HTTP server error: ", http.ListenAndServe(":3000", mux))
 }
