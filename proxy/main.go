@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-var	addr = flag.String("addr", ":8082", "Listen address")
+var addr = flag.String("addr", ":8082", "Listen address")
 
 func tunnel(w http.ResponseWriter, r *http.Request) (err error) {
 	var (
 		dst, src net.Conn
 		hijacker http.Hijacker
-		ok bool
+		ok       bool
 	)
 
 	dst, err = net.DialTimeout("tcp", r.Host, 10*time.Second)
@@ -51,7 +51,7 @@ func tunnel(w http.ResponseWriter, r *http.Request) (err error) {
 	return
 }
 
-func handleHTTP(w http.ResponseWriter, req *http.Request) (err error){
+func handleHTTP(w http.ResponseWriter, req *http.Request) (err error) {
 	resp, err := http.DefaultTransport.RoundTrip(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
@@ -93,7 +93,7 @@ func main() {
 	flag.Parse()
 
 	server := &http.Server{
-		Addr: *addr,
+		Addr:    *addr,
 		Handler: http.HandlerFunc(proxy),
 		// If TLSNextProto is not nil, HTTP/2 support is not enabled
 		// automatically.

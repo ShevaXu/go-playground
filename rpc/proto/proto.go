@@ -4,12 +4,12 @@ import (
 	"sync"
 )
 
-type NoArgs struct {}
+type NoArgs struct{}
 
-type NoReturn struct {}
+type NoReturn struct{}
 
 type Counter struct {
-	mu sync.Mutex
+	mu    sync.Mutex
 	count int
 }
 

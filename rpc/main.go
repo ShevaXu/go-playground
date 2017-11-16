@@ -1,9 +1,9 @@
 package main
 
 import (
-	"net/rpc"
 	"log"
 	"net/http"
+	"net/rpc"
 	"time"
 
 	"github.com/ShevaXu/playground/rpc/proto"
