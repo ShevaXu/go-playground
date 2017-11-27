@@ -111,13 +111,14 @@ func (b *Broker) listen() {
 			// Send event to all connected clients
 			for clientMessageChan := range b.clients {
 				// non-blocking
-				go func() {
+				go func(ch chan ([]byte)) {
 					select {
-					case clientMessageChan <- event:
+					case ch <- event:
+						// TODO
 					case <-time.After(patience):
 						log.Print("Skipping client.")
 					}
-				}()
+				}(clientMessageChan)
 			}
 		}
 	}
