@@ -20,6 +20,7 @@ import (
 // a slow client or a client that closed after `range clients` started.
 const patience time.Duration = time.Second * 1
 
+// Broker manages all the clients and message notification.
 type Broker struct {
 	// Events are pushed to this channel by the main events-gathering routine
 	Notifier chan []byte
@@ -34,6 +35,7 @@ type Broker struct {
 	clients map[chan []byte]bool
 }
 
+// NewBroker returns a ready-to-demo broker and starts listening.
 func NewBroker() (b *Broker) {
 	// Instantiate a broker
 	b = &Broker{
@@ -93,6 +95,7 @@ func (b *Broker) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// listen handles clients come-and-go and message broadcasting.
 func (b *Broker) listen() {
 	for {
 		select {
