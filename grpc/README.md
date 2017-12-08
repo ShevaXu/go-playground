@@ -15,7 +15,8 @@
 Build the stubs:
 
 ```sh
-protoc -I contacts/ contacts/contacts.proto --go_out=plugins=grpc:contacts
+make compile
+# protoc -I contacts/ contacts/contacts.proto --go_out=plugins=grpc:contacts
 ```
 
 Run the server & client:
@@ -30,5 +31,11 @@ go run client/main.go
 
 ### Proto3
 
+https://developers.google.com/protocol-buffers/docs/proto3
+
 - Fields are 'optional' by default, "required/optional" are removed ([why](https://github.com/google/protobuf/issues/2497)).
 - Explicit default values are not allowed.
+
+### Makefile
+
+Ref to https://blog.gopheracademy.com/advent-2017/make/
