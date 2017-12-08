@@ -16,6 +16,24 @@ From [wikipedia](https://en.wikipedia.org/wiki/HTTP_tunnel)
 
 > A variation of HTTP tunneling when behind an HTTP proxy server is to use the ["CONNECT"](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/CONNECT) HTTP method. In this mechanism, the client asks an HTTP proxy server to forward the TCP connection to the desired destination. The server then proceeds to make the connection on behalf of the client. Once the connection has been established by the server, the proxy server continues to proxy the TCP stream to and from the client.
 
+## What's More
+
+#### Hop-by-hop headers
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers#hbh
+
+- Proxy-*
+- Upgrade
+- Keep-Alive
+- Transfer-Encoding
+
+#### Forward headers
+
+- X-Forwarded-Proto
+- X-Forwarded-Host
+
+#### Streaming
+
 ## Refs
 
 Inspired by the [blog](https://medium.com/@mlowicki/http-s-proxy-in-golang-in-less-than-100-lines-of-code-6a51c2f2c38c).

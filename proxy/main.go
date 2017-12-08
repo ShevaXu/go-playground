@@ -10,6 +10,24 @@ import (
 	"time"
 )
 
+// Hop-by-hop headers. These are removed when sent to the backend.
+var hbhHeaders = []string{
+	"Connection",
+	"Keep-Alive",
+	"Proxy-Authenticate",
+	"Proxy-Authorization",
+	"TE", // informally called Accept-Transfer-Encoding
+	"Trailers",
+	"Transfer-Encoding",
+	"Upgrade",
+}
+
+func delHopHeaders(header http.Header) {
+	for _, h := range hbhHeaders {
+		header.Del(h)
+	}
+}
+
 var addr = flag.String("addr", ":8082", "Listen address")
 
 func tunnel(w http.ResponseWriter, r *http.Request) (err error) {
@@ -52,6 +70,9 @@ func tunnel(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 func handleHTTP(w http.ResponseWriter, req *http.Request) (err error) {
+	// delete request hob-by-hob headers
+	delHopHeaders(req.Header)
+
 	resp, err := http.DefaultTransport.RoundTrip(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
@@ -60,6 +81,8 @@ func handleHTTP(w http.ResponseWriter, req *http.Request) (err error) {
 
 	defer resp.Body.Close()
 
+	// delete response hob-by-hob headers
+	delHopHeaders(resp.Header)
 	copyHeader(w.Header(), resp.Header)
 
 	w.WriteHeader(resp.StatusCode)
