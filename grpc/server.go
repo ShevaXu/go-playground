@@ -3,11 +3,15 @@ package main
 import (
 	"log"
 	"net"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/Shevaxu/playground/grpc/contacts"
 )
@@ -34,6 +38,39 @@ func (s *server) GetPerson(ctx context.Context, req *pb.GetPersonRequest) (*pb.G
 	}, nil
 }
 
+func authorize(ctx context.Context) error {
+	// code from the authorize() function:
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return status.Errorf(codes.InvalidArgument, "retrieving metadata failed")
+	}
+
+	// so far, just check its existence
+	_, ok = md["authorization"]
+	if !ok {
+		return status.Errorf(codes.InvalidArgument, "no auth details supplied")
+	}
+
+	// passed
+	return nil
+}
+
+// unaryInterceptor handles per RPC call
+// with logging and authorization
+func unaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, h grpc.UnaryHandler) (interface{}, error) {
+	// timing
+	t := time.Now()
+	defer log.Printf("Handle request %s in %s\n", info.FullMethod, time.Since(t))
+
+	// auth first
+	if err := authorize(ctx); err != nil {
+		return nil, err
+	}
+
+	// let the original handler handle it
+	return h(ctx, req)
+}
+
 func main() {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -46,7 +83,8 @@ func main() {
 	}
 
 	// functional options
-	s := grpc.NewServer(grpc.Creds(cred))
+	s := grpc.NewServer(grpc.Creds(cred),
+		grpc.UnaryInterceptor(unaryInterceptor))
 
 	pb.RegisterContactsManagerServer(s, &server{})
 	// Register reflection service on gRPC server.

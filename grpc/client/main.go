@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"log"
 
 	"golang.org/x/net/context"
@@ -12,14 +13,42 @@ import (
 
 const addr = "localhost:15001" // must specify localhost
 
+// basicAuth provides basic encryption
+func basicAuth(username, password string) string {
+	auth := username + ":" + password
+	return base64.StdEncoding.EncodeToString([]byte(auth))
+}
+
+// basicAuthCreds implements credentials.PerRPCCredentials
+type basicAuthCreds struct {
+	username, password string
+}
+
+func (b *basicAuthCreds) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
+	return map[string]string{
+		"authorization": "Basic " + basicAuth(b.username, b.password),
+	}, nil
+}
+
+func (b *basicAuthCreds) RequireTransportSecurity() bool {
+	return true
+}
+
 func main() {
 	cred, err := credentials.NewClientTLSFromFile("cert.pem", "")
 	if err != nil {
 		log.Fatalf("faild to create credentials")
 	}
 
+	grpcAuth := &basicAuthCreds{
+		username: "foo",
+		password: "bar",
+	}
+
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(cred))
+	conn, err := grpc.Dial(addr,
+		grpc.WithTransportCredentials(cred),
+		grpc.WithPerRPCCredentials(grpcAuth))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
