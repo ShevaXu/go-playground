@@ -27,7 +27,40 @@ go run server.go
 go run client/main.go
 ```
 
+## Beyond Basics
+
+### Secure gRPC
+
+Generate the certificate:
+
+```sh
+openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+# IMPORTANT: MUST specify server name after the prompt
+# Common Name (e.g. server FQDN or YOUR name) []:localhost
+```
+
+Add [credential](https://godoc.org/google.golang.org/grpc/credentials) options:
+
+```go
+// server
+cred, err := credentials.NewServerTLSFromFile("cert.pem", "key.pem")
+s := grpc.NewServer(grpc.Creds(cred))
+
+// client
+cred, err := credentials.NewClientTLSFromFile("cert.pem", "")
+conn, err := grpc.Dial("localhost:15001", grpc.WithTransportCredentials(cred))
+```
+
+### Interceptor (Middleware)
+
+Interceptor for [Unary RPC](https://grpc.io/docs/guides/concepts.html#unary-rpc) (single request) with [metadata](https://godoc.org/google.golang.org/grpc/metadata) through `context.Context`.
+
+
+
 ## Refs
+
+- https://godoc.org/google.golang.org/grpc
+- https://blog.gopheracademy.com/advent-2017/go-grpc-beyond-basics/
 
 ### Proto3
 
