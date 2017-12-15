@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 
 	pb "github.com/Shevaxu/playground/grpc/contacts"
@@ -39,7 +40,14 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	cred, err := credentials.NewServerTLSFromFile("cert.pem", "key.pem")
+	if err != nil {
+		log.Fatalf("faild to create credentials")
+	}
+
+	// functional options
+	s := grpc.NewServer(grpc.Creds(cred))
+
 	pb.RegisterContactsManagerServer(s, &server{})
 	// Register reflection service on gRPC server.
 	reflection.Register(s)

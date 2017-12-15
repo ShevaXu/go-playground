@@ -5,15 +5,21 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	pb "github.com/Shevaxu/playground/grpc/contacts"
 )
 
-const addr = ":15001"
+const addr = "localhost:15001" // must specify localhost
 
 func main() {
+	cred, err := credentials.NewClientTLSFromFile("cert.pem", "")
+	if err != nil {
+		log.Fatalf("faild to create credentials")
+	}
+
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(cred))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
