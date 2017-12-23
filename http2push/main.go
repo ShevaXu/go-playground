@@ -11,7 +11,7 @@ const indexHTML = `<html>
 <head>
 	<title>Hello Gopher</title>
 	<script src="/static/app.js"></script>
-	<link rel="stylesheet" href="/static/style.css"">
+	<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 Hello gopher from HTTP2 Push!
