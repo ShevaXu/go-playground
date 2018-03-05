@@ -16,6 +16,10 @@ From [wikipedia](https://en.wikipedia.org/wiki/HTTP_tunnel)
 
 > A variation of HTTP tunneling when behind an HTTP proxy server is to use the ["CONNECT"](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/CONNECT) HTTP method. In this mechanism, the client asks an HTTP proxy server to forward the TCP connection to the desired destination. The server then proceeds to make the connection on behalf of the client. Once the connection has been established by the server, the proxy server continues to proxy the TCP stream to and from the client.
 
+## Client
+
+Go 1.10 supports HTTPs proxy [*now*](https://medium.com/@mlowicki/https-proxies-support-in-go-1-10-b956fb501d6b). Check `client/main.go`. (However, test with Go 1.9.3 works as well.)
+
 ## What's More
 
 #### Hop-by-hop headers
