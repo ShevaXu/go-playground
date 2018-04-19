@@ -1,0 +1,10 @@
+{{define "main"}}
+{{template "header"}}
+<h1>Multipart template</h1>
+<ul>
+	{{range $}}
+    <li>{{.}}</li>
+  {{end}}
+</ul>
+{{template "footer"}}
+{{end}}
