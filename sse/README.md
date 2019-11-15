@@ -26,8 +26,15 @@ es.onmessage = function(msg) {
 
 Other push technologies:
 
-- Webpush
+- Webpush (HTTP/2 server push)
+- Websocket
 - Pushlet
 - Long polling
 - Flash XMLSocket relays
 - Reliable Group Data Delivery (RGDD)
+
+## `text/event-stream`
+
+https://www.w3.org/TR/eventsource/#parsing-an-event-stream
+
+And see https://github.com/manucorporat/sse for and implementaion.
